@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>個人網站</title>
+    <style>
+        body {
+            background-color: rgb(0, 0, 0);
+            margin: 0;
+        }
+        
+        /* 1. 影片區塊 */
+        .scroll-video-container {
+            height: 500vh;
+            position: relative;
+            top: 0;
+        }
+
+        .sticky-wrapper {
+            position: sticky;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            display: flex; 
+            justify-content: center;
+            align-items: center;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .overlay-text {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.6);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 16px;
+            pointer-events: none; 
+            z-index: 5;
+        }
+      
+        /* 右上角圖片 (浮在影片上) */
+        #ROW {
+            position: absolute;
+            top: 170px;         
+            right: 80px;        
+            width: 250px;    
+            height: auto;
+            z-index: 10;       
+        }
+
+        /* 2. 影片下方圖片區塊 */
+        .after-video-section {
+            display: flex;             
+            justify-content: center;   
+            align-items: center;     
+            gap: 60px;               
+            padding: 80px 20px;      
+            background-color: rgb(0, 0, 0);
+        }
+
+        /* 圖 2 (CLICK.png) 樣式 */
+        #CLICK {
+            position: relative;
+            right: 20px; 
+            transform: translateY(-170px);
+            width: 20vw;
+            max-width: 250px;
+            min-width: 100px;
+            height: auto;
+        }
+
+        /* 圖 1 的外層定位容器 */
+        .img1-container {
+            position: relative;        /* 設為定位基準點 */
+            display: inline-block;
+        }
+
+        /* 圖 1 (screem) 樣式 */
+        #screem {
+            width: 37vw;          
+            max-width: 600px;    
+            height: auto;        
+            display: block;      
+        }
+
+        /* 【共有樣式】所有按鈕的基礎設定 */
+        .shelf-btn {
+            position: absolute; 
+            top: 50.35%; 
+            transform: translate(-50%, -50%); 
+            width: 14.5%;             /* 改用相對於圖 1 的百分比寬度，隨圖 1 完美放大縮小 */
+            height: auto;
+            cursor: pointer;          
+            z-index: 10;              
+            transition: transform 0.2s ease;
+            /* 注意：這裡拿掉了 min-width 和 max-width，讓按鈕完全不受限制自由縮放 */
+        }
+
+        .shelf-btn:hover {
+            transform: translate(-50%, -50%) scale(1.1); 
+        }
+
+        /* 【個別定位】各按鈕的水平位置 (X 軸) */
+        #bottom  { left: 13.8%; }
+        #bottom1 { left: 28.3%; }
+        #bottom2 { left: 42.9%; }
+        #bottom3 { left: 57.5%; }
+        #bottom4 { left: 72.0%; }
+        #bottom5 { left: 86.5%; }
+    </style>
+</head>
+<body>
+
+    <!-- 1. 影片區塊 -->
+    <div class="scroll-video-container" id="videoContainer">
+        <div class="sticky-wrapper">
+            <video id="scrollVideo" 
+                   src="0001-0250.mp4"
+                   muted 
+                   playsinline 
+                   preload="auto">
+            </video>
+
+            <img id="ROW" src="ROW.png" alt="右上角圖片">
+            <div class="overlay-text" id="statusText">滾動進度：0%</div>
+        </div>
+    </div>
+
+    <!-- 2. 影片下方圖片區塊 -->
+    <div class="after-video-section">
+        <!-- 圖 2 -->
+        <img id="CLICK" class="img2" src="CLICK.png" alt="圖片2">
+        
+        <!-- 圖 1 容器（包住圖 1 與 6 個按鈕） -->
+        <div class="img1-container">
+            <img id="screem" class="img1" src="螢幕擷取畫面 2026-10-22 185401.png" alt="書架">
+            
+            <a href="專案一.html"><img id="bottom"  class="shelf-btn" src="無標題243.png" alt="按鈕"></a>
+            <a href="專案二.html"><img id="bottom1" class="shelf-btn" src="無標題243 (1).png" alt="按鈕1"></a>
+            <a href="專案三.html"><img id="bottom2" class="shelf-btn" src="無標題243 (2).png" alt="按鈕2"></a>
+            <a href="專案四.html"><img id="bottom3" class="shelf-btn" src="無標題243 (3).png" alt="按鈕3"></a>
+            <a href="專案五.html"><img id="bottom4" class="shelf-btn" src="無標題243 (4).png" alt="按鈕4"></a>
+            <a href="專案六.html"><img id="bottom5" class="shelf-btn" src="無標題243 (5).png" alt="按鈕5"></a>
+        </div>
+    </div>
+
+    <!-- JavaScript 邏輯 -->
+    <script>
+        const container = document.getElementById('videoContainer');
+        const video = document.getElementById('scrollVideo');
+        const statusText = document.getElementById('statusText');
+
+        let isVideoReady = false;
+
+        video.addEventListener('loadedmetadata', () => {
+            isVideoReady = true;
+            updateVideoProgress(); 
+        });
+
+        function updateVideoProgress() {
+            if (!isVideoReady || !video.duration) return;
+
+            const containerRect = container.getBoundingClientRect();
+            const containerHeight = container.offsetHeight;
+            const windowHeight = window.innerHeight;
+
+            let scrollProgress = -containerRect.top / (containerHeight - windowHeight);
+            scrollProgress = Math.max(0, Math.min(1, scrollProgress));
+
+            video.currentTime = scrollProgress * video.duration;
+
+            const percentage = Math.round(scrollProgress * 100);
+            statusText.innerText = `滾動進度：${percentage}% (${video.currentTime.toFixed(1)}s / ${video.duration.toFixed(1)}s)`;
+        }
+
+        let isTicking = false;
+        window.addEventListener('scroll', () => {
+            if (!isTicking) {
+                window.requestAnimationFrame(() => {
+                    updateVideoProgress();
+                    isTicking = false;
+                });
+                isTicking = true;
+            }
+        });
+    </script>
+</body>
+</html>
